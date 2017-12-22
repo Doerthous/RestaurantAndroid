@@ -1,4 +1,4 @@
-package restaurant.client;
+package restaurant.client.component;
 
 import android.view.View;
 

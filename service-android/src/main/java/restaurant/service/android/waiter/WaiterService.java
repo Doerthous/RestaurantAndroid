@@ -9,6 +9,8 @@ import restaurant.communication.core.IPeer;
 import restaurant.service.core.IWaiterService;
 import restaurant.service.core.impl.InterModuleCommunication;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Created by Doerthous on 2017/12/22.
  */
@@ -30,7 +32,6 @@ public class WaiterService implements IWaiterService, ICommandObserver {
         peer.start();
     }
 
-
     private String failedReason;
     private Boolean isResponse;
     private Boolean isSuccess;
@@ -40,7 +41,13 @@ public class WaiterService implements IWaiterService, ICommandObserver {
                 InterModuleCommunication.CommandToManagement.WAITER_LOGIN,
                 InterModuleCommunication.Data.MW.login(account, password));
         isResponse = false;
-        while(!isResponse);
+        while(!isResponse){
+            try {
+                sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         return isSuccess;
     }
     @Override
@@ -76,23 +83,27 @@ public class WaiterService implements IWaiterService, ICommandObserver {
         String cmd = iData.getCommand();
         InterModuleCommunication.Data.MW d = (InterModuleCommunication.Data.MW)iData.getData();
         if(InterModuleCommunication.CommandToWaiter.MANAGEMENT_LOGIN_ACK.equals(cmd)){
-            isResponse = true;
-            isSuccess = d.isSuccess;
-            failedReason = d.failedReason;
-            if(isSuccess){
-                peer.setId(d.account);
+            synchronized (this) {
+                isResponse = true;
+                isSuccess = d.isSuccess;
+                failedReason = d.failedReason;
+                if (isSuccess) {
+                    peer.setId(d.account);
+                }
             }
         } else if(InterModuleCommunication.CommandToWaiter.MANAGEMENT_CHANGE_PASSWORD_ACK.equals(cmd)) {
-            isResponse = true;
-            isSuccess = d.isSuccess;
-            failedReason = d.failedReason;
+            synchronized (this) {
+                isResponse = true;
+                isSuccess = d.isSuccess;
+                failedReason = d.failedReason;
+            }
         } else if(InterModuleCommunication.CommandToWaiter.MANAGEMENT_DISH_FINISHED.equals(cmd)) {
             for(INotificationObserver observer : observers){
-                observer.newNotification(d.tableId, d.type);
+                observer.dishFinish(d.dishName, d.tableId);
             }
         } else if(InterModuleCommunication.CommandToWaiter.MANAGEMENT_SERVE_CUSTOMER.equals(cmd)) {
             for(INotificationObserver observer : observers){
-                observer.newNotification(d.tableId, d.type);
+                observer.customerCall(d.tableId);
             }
         }
     }

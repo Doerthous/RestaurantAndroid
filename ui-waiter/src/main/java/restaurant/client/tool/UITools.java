@@ -1,4 +1,4 @@
-package restaurant.client;
+package restaurant.client.tool;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -6,7 +6,10 @@ import android.app.FragmentTransaction;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.os.Handler;
 import android.widget.Toast;
+
+import restaurant.client.R;
 
 /**
  * Created by Doerthous on 2017/12/20.
@@ -48,5 +51,9 @@ public class UITools {
     }
     public static void showToast(Context context, String message, int time){
         Toast.makeText(context, message, time).show();
+    }
+
+    public class Handler extends android.os.Handler {
+
     }
 }

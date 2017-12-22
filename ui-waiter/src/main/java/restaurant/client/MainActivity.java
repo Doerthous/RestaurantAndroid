@@ -1,32 +1,48 @@
 package restaurant.client;
 
+
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.wifi.WifiManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
-import restaurant.communication.android.IPTools;
-import restaurant.communication.android.PeerFactory;
-import restaurant.communication.android.SocketWrapper;
+
+import restaurant.client.component.FragmentBase;
+import restaurant.client.component.ViewBase;
+import restaurant.client.tool.UITools;
 import restaurant.communication.core.ICommandObserver;
 import restaurant.communication.core.IData;
-import restaurant.communication.core.IPeer;
+import restaurant.service.core.IWaiterService;
+import restaurant.service.android.ServiceFactory;
 
 public class MainActivity extends AppCompatActivity implements ViewBase, ICommandObserver {
     private FragmentBase login;
     private FragmentBase main;
-    private IPeer peer;
+    private IWaiterService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
+        initServiceComponent();
         initFragment();
     }
 
+    private void initServiceComponent(){
+        final ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setMessage("初始化中...");
+        new Thread(()->{
+            service = ServiceFactory.getWaiterService(
+                    (WifiManager) getApplicationContext()
+                            .getSystemService(Context.WIFI_SERVICE));
+            dialog.dismiss();
+        }).start();
+        dialog.show();
+    }
     private void initFragment(){
         login = new LoginFragment();
         login.setParent(this);
@@ -40,23 +56,16 @@ public class MainActivity extends AppCompatActivity implements ViewBase, IComman
         switch (view.getId()){
             case R.id.loginBtn:{
                 UITools.showFragment(getFragmentManager(), main, R.id.activityFlFrame);
-                WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-                new Thread(()->{
-                    peer = PeerFactory.getPeer("waiter1", wm);
-                    peer.addCommandObserver(this, "MTWDF");
-                    peer.start();
-                }).start();
             } break;
         }
     }
 
     @Override
     public void update(IData iData) {
-        switch (iData.getCommand()){
-            case "MTWDF":{
-                UITools.showNotification(getApplicationContext(),
-                        "mmp","mmp","mmp");
-            }
-        }
+
+    }
+
+    IWaiterService getService(){
+        return service;
     }
 }

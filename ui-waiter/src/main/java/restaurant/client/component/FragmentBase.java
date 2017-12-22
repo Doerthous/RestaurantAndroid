@@ -1,8 +1,6 @@
-package restaurant.client;
+package restaurant.client.component;
 
 import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,18 +22,20 @@ public abstract class FragmentBase extends Fragment implements View.OnClickListe
     /*
         父组件
      */
-    private ViewBase parent;
+    protected ViewBase parent;
     public void setParent(ViewBase parent){
         this.parent = parent;
     }
 
-    abstract void initUIComponent();
+    protected abstract void initServiceComponent();
+    protected abstract void initUIComponent();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(layout, container, false);
+        initServiceComponent();
         initUIComponent();
         return view;
     }
