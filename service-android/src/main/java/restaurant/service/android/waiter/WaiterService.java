@@ -1,6 +1,8 @@
 package restaurant.service.android.waiter;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import restaurant.communication.core.ICommandObserver;
@@ -19,8 +21,10 @@ public class WaiterService implements IWaiterService, ICommandObserver {
     private IPeer peer;
 
     public WaiterService(IPeer peer) {
-        observers = new ArrayList<>();
+        nObservers = new ArrayList<>();
+        aObservers = new ArrayList<>();
         this.peer = peer;
+        peer.addCommandObserver(this,IPeer.CMD_ID_IS_ALREADY_IN_USED);
         peer.addCommandObserver(this,
                 InterModuleCommunication.CommandToWaiter.MANAGEMENT_LOGIN_ACK);
         peer.addCommandObserver(this,
@@ -29,12 +33,18 @@ public class WaiterService implements IWaiterService, ICommandObserver {
                 InterModuleCommunication.CommandToWaiter.MANAGEMENT_DISH_FINISHED);
         peer.addCommandObserver(this,
                 InterModuleCommunication.CommandToWaiter.MANAGEMENT_SERVE_CUSTOMER);
-        peer.start();
+        peer.init();
+        peer.start(new SimpleDateFormat("HHmmssSS").format(new Date()));
     }
 
     private String failedReason;
     private Boolean isResponse;
     private Boolean isSuccess;
+
+    @Override
+    public String getAccount() {
+        return peer.getId();
+    }
     @Override
     public Boolean login(String account, String password) {
         peer.sendCommand(InterModuleCommunication.ModuleId.MANAGEMENT,
@@ -67,11 +77,17 @@ public class WaiterService implements IWaiterService, ICommandObserver {
     public String getChangePasswrodFailedReason() {
         return failedReason;
     }
-    private List<INotificationObserver> observers;
+    private List<INotificationObserver> nObservers;
     @Override
     public void addNotificationObserver(INotificationObserver iNotificationObserver) {
-        observers.add(iNotificationObserver);
+        nObservers.add(iNotificationObserver);
     }
+    private List<IAccountObserver> aObservers;
+    @Override
+    public void addAccountObserver(IAccountObserver iAccountObserver) {
+        aObservers.add(iAccountObserver);
+    }
+
     @Override
     public void reportIssue(String s, String s1) {
         peer.sendCommand(InterModuleCommunication.ModuleId.MANAGEMENT,
@@ -82,29 +98,42 @@ public class WaiterService implements IWaiterService, ICommandObserver {
     public void update(IData iData) {
         String cmd = iData.getCommand();
         InterModuleCommunication.Data.MW d = (InterModuleCommunication.Data.MW)iData.getData();
+        if(IPeer.CMD_ID_IS_ALREADY_IN_USED.equals(cmd)){
+            for(IAccountObserver accountObserver: aObservers){
+                accountObserver.forceGoDown();
+            }
+            return;
+        }
         if(InterModuleCommunication.CommandToWaiter.MANAGEMENT_LOGIN_ACK.equals(cmd)){
             synchronized (this) {
                 isResponse = true;
                 isSuccess = d.isSuccess;
                 failedReason = d.failedReason;
                 if (isSuccess) {
-                    peer.setId(d.account);
+                    peer.start(d.account);
                 }
             }
-        } else if(InterModuleCommunication.CommandToWaiter.MANAGEMENT_CHANGE_PASSWORD_ACK.equals(cmd)) {
+            return;
+        }
+        if(InterModuleCommunication.CommandToWaiter.MANAGEMENT_CHANGE_PASSWORD_ACK.equals(cmd)) {
             synchronized (this) {
                 isResponse = true;
                 isSuccess = d.isSuccess;
                 failedReason = d.failedReason;
             }
-        } else if(InterModuleCommunication.CommandToWaiter.MANAGEMENT_DISH_FINISHED.equals(cmd)) {
-            for(INotificationObserver observer : observers){
+            return;
+        }
+        if(InterModuleCommunication.CommandToWaiter.MANAGEMENT_DISH_FINISHED.equals(cmd)) {
+            for(INotificationObserver observer : nObservers){
                 observer.dishFinish(d.dishName, d.tableId);
             }
-        } else if(InterModuleCommunication.CommandToWaiter.MANAGEMENT_SERVE_CUSTOMER.equals(cmd)) {
-            for(INotificationObserver observer : observers){
+            return;
+        }
+        if(InterModuleCommunication.CommandToWaiter.MANAGEMENT_SERVE_CUSTOMER.equals(cmd)) {
+            for(INotificationObserver observer : nObservers){
                 observer.customerCall(d.tableId);
             }
+            return;
         }
     }
 }

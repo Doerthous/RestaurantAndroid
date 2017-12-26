@@ -1,4 +1,4 @@
-package restaurant.client.tool;
+package restaurant.waiter.tool;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -6,10 +6,9 @@ import android.app.FragmentTransaction;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.os.Handler;
 import android.widget.Toast;
 
-import restaurant.client.R;
+import restaurant.waiter.R;
 
 /**
  * Created by Doerthous on 2017/12/20.
@@ -31,7 +30,7 @@ public class UITools {
     }
     public static void showNotification(Context context, String ticker,
                                         String title, String content){
-        new Thread(()->{
+        //new Thread(()->{
             NotificationManager notificationManager = (NotificationManager) context
                     .getSystemService(Context.NOTIFICATION_SERVICE);
             Notification.Builder builder = new Notification.Builder(context);
@@ -47,13 +46,10 @@ public class UITools {
                 Notification notification = builder.build();
                 notificationManager.notify(1, notification);
             }
-        }).start();
+       // }).start();
     }
     public static void showToast(Context context, String message, int time){
         Toast.makeText(context, message, time).show();
     }
 
-    public class Handler extends android.os.Handler {
-
-    }
 }

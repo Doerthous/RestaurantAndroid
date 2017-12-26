@@ -1,4 +1,4 @@
-package restaurant.client;
+package restaurant.waiter;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

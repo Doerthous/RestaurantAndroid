@@ -1,4 +1,4 @@
-package restaurant.client;
+package restaurant.waiter;
 
 import org.junit.Test;
 

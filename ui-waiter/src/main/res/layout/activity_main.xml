@@ -2,9 +2,12 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activityFlFrame"
+    android:id="@+id/activityFlChildren"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="restaurant.client.MainActivity">
+    android:layout_margin="0dp"
+    android:background="@color/background"
+    android:padding="0dp"
+    tools:context="restaurant.waiter.MainActivity">
 
 </FrameLayout>

@@ -1,15 +1,70 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mainFlFrame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="restaurant.client.MainFragment">
+    android:background="@color/transparent"
+    tools:context="restaurant.waiter.MainFragment">
 
     <!-- TODO: Update blank fragment layout -->
 
-    <Button
-        android:id="@+id/mainBtnTest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="0dp"
+        android:background="@color/transparent"
+        android:orientation="vertical"
+        android:padding="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="9"
+            android:background="@color/transparent"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/mainFlChildren"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            </FrameLayout>
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/subtitle" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="0dp"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:orientation="horizontal"
+            android:padding="0dp">
+
+            <Button
+                android:id="@+id/mainBtnNtfct"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_margin="0dp"
+                android:layout_weight="1"
+                android:background="@color/title"
+                android:padding="0dp"
+                android:text="通知" />
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/subtitle" />
+
+            <Button
+                android:id="@+id/mainBtnPsnl"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_margin="0dp"
+                android:layout_weight="1"
+                android:background="@color/title"
+                android:padding="0dp"
+                android:text="个人中心" />
+        </LinearLayout>
+    </LinearLayout>
 </FrameLayout>

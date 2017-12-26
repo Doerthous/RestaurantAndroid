@@ -12,8 +12,8 @@ import restaurant.communication.core.impl.Peer;
  */
 
 public class PeerFactory {
-    public static IPeer getPeer(String id, WifiManager wm){
+    public static IPeer getPeer(WifiManager wm){
         ISocketWrapper socketWrapper = new SocketWrapper(wm.createMulticastLock("test wifi"));
-        return new Peer(id, socketWrapper, new IPTools(wm));
+        return new Peer(socketWrapper, new IPTools(wm));
     }
 }

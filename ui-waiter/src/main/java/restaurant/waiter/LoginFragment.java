@@ -1,7 +1,8 @@
-package restaurant.client;
+package restaurant.waiter;
 
 
 import android.app.ProgressDialog;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
@@ -9,8 +10,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import restaurant.client.component.FragmentBase;
-import restaurant.client.tool.UITools;
+import restaurant.waiter.component.FragmentBase;
+import restaurant.waiter.tool.UITools;
 
 import static java.lang.Thread.sleep;
 
@@ -47,30 +48,31 @@ public class LoginFragment extends FragmentBase {
     }
     private Boolean isLogin;
     @Override
-    public void onClick(View view) {
-        switch (view.getId()){
+    public void handleMessage(Message msg) {
+        switch (msg.what){
             case R.id.loginBtn: {
-                final ProgressDialog dialog = new ProgressDialog(getActivity());
+                final ProgressDialog dialog = new ProgressDialog(ma);
                 dialog.setCanceledOnTouchOutside(false);
                 dialog.setMessage("登陆中...");
-                final Handler handler = new Handler(message -> {
-                    if(isLogin){
-                        super.onClick(view);
-                    } else {
-                        UITools.showToast(getActivity(),
-                                ma.getService().getLoginFailedReason(),
-                                Toast.LENGTH_LONG);
-                    }
-                    return false;
-                });
                 new Thread(()->{
                     isLogin = ma.getService().login(account.getText().toString(),
                             password.getText().toString());
                     dialog.dismiss();
-                    handler.sendMessage(new Message());
+                    msg.what = -1;
+                    sendMessage(msg);
                 }).start();
                 dialog.show();
             } break;
+            case -1:{
+                if(isLogin){
+                    msg.what = R.id.loginBtn;
+                    super.handleMessage(msg);
+                } else {
+                    UITools.showToast(getActivity(),
+                            ma.getService().getLoginFailedReason(),
+                            Toast.LENGTH_LONG);
+                }
+            }
         }
     }
 }

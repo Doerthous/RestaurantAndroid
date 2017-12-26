@@ -16,8 +16,6 @@ import restaurant.service.core.IWaiterService;
 
 public class ServiceFactory {
     public static IWaiterService getWaiterService(WifiManager wm){
-        // 临时id
-        String id = new SimpleDateFormat("HHmmssSS").format(new Date());
-        return new WaiterService(PeerFactory.getPeer(id, wm));
+        return new WaiterService(PeerFactory.getPeer(wm));
     }
 }
