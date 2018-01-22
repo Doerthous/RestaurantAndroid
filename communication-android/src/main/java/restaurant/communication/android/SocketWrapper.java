@@ -16,6 +16,7 @@ import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -81,7 +82,7 @@ public class SocketWrapper implements ISocketWrapper {
     }
 
     @Override
-    public void sendByTcp(ISocketWrapper.IData data) {
+    public void sendByTcp(ISocketWrapper.IData data) throws ConnectException {
         Socket other = null;
         ObjectOutputStream out = null;
         try {
@@ -89,7 +90,9 @@ public class SocketWrapper implements ISocketWrapper {
             out = new ObjectOutputStream(other.getOutputStream());
             out.writeObject(data);
             out.writeObject(null);
-        } catch(Exception e){
+        } catch(ConnectException e){
+            throw e;
+        }catch (Exception e){
             e.printStackTrace();
         } finally {
             try {
